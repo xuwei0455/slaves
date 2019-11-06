@@ -9,18 +9,18 @@ golang的协程模型虽然支持海量的并发，但是并发到了一定量�
 
 原因可能有以下几点：
 
-    1. 程序员的追求，君不见别人的轮子圆又圆；
-    2. 当极端情况下，例如cpu满载，服务处理不过来的时候，goroutine会大量创建，从而加剧
-    问题，当然这个也可以设置gouroutine的数量上限来缓解；
-    3. 复用goroutine，减小GC压力；
-    4. 封装并发代码，使用起来更为简单。
+1. 程序员的追求，君不见别人的轮子圆又圆；
+2. 当极端情况下，例如cpu满载，服务处理不过来的时候，goroutine会大量创建，从而加剧
+问题，当然这个也可以设置gouroutine的数量上限来缓解；
+3. 复用goroutine，减小GC压力；
+4. 封装并发代码，使用起来更为简单。
     
 在调研的过程中，发现了[tidb](https://github.com/pingcap/tidb/pull/3752)在go升级
 到1.11之后，删除了自己实现的pool，于是我很好奇难道pool真的已经是不必要的了么？所以又
 找了几个比较容易被用来做参考的pool实现：
     
-    1. [fasthttp](https://github.com/valyala/fasthttp/blob/master/workerpool.go)
-    2. [ants](https://github.com/panjf2000/ants)
+1. [fasthttp](https://github.com/valyala/fasthttp/blob/master/workerpool.go)
+2. [ants](https://github.com/panjf2000/ants)
 
 经过一番测试，有一个基本的结论，在goroutine的规模不至于大到导致占用太多cpu资源的时候，
 原生的go语句会执行的更快，但同时内存的使用也是不受控制的。性能的损耗导致的运行时间会
@@ -68,9 +68,9 @@ Job对象，包含Success和Result两个字段，分别用于保存是否成功�
 
 人非图灵，难免有不会的地方，这里记录下做这个半路碰到的问题：
    
-    - [单例模式](./docs/singleton.md)
-    - [闭包](./docs/closure.md)
-    - [锁和信号量](./docs/lock_and_condition.md)
+- [单例模式](./docs/singleton.md)
+- [闭包](./docs/closure.md)
+- [锁和信号量](./docs/lock_and_condition.md)
 
 ### 这个pool性能的热点问题可能在哪
 
