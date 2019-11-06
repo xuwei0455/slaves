@@ -18,6 +18,7 @@ golang的协程模型虽然支持海量的并发，但是并发到了一定量�
 在调研的过程中，发现了[tidb](https://github.com/pingcap/tidb/pull/3752)在go升级
 到1.11之后，删除了自己实现的pool，于是我很好奇难道pool真的已经是不必要的了么？所以又
 找了几个比较容易被用来做参考的pool实现：
+    
     1. [fasthttp](https://github.com/valyala/fasthttp/blob/master/workerpool.go)
     2. [ants](https://github.com/panjf2000/ants)
 
@@ -66,6 +67,7 @@ Job对象，包含Success和Result两个字段，分别用于保存是否成功�
 ### 过程中碰到的问题
 
 人非图灵，难免有不会的地方，这里记录下做这个半路碰到的问题：
+   
     - [单例模式](./docs/singleton.md)
     - [闭包](./docs/closure.md)
     - [锁和信号量](./docs/lock_and_condition.md)
@@ -78,10 +80,17 @@ Job对象，包含Success和Result两个字段，分别用于保存是否成功�
 
 ### 性能测试结果
 
+这里算是一个总结吧，经过测试，在我的mbp-2019上，大概要500万以上的goroutine的时候，调度
+才会有明显的压力，我感觉我这辈子可能都用不到那么多的goroutine，当然我测试的goroutine很
+轻量，只使用了`time.Sleep()`，这个方法只会分配一次内存，也没多少cpu的操作。
+
+而且，从原理上讲，一个pool不会运行的比golang的调度器更快，因为golang相当于只是往队列里
+扔了一个任务，然后调度器去执行，所以`go`关键字是非常快的，主要的问题还是在大规模goroutine
+的调度问题，以及内存消耗的问题，但限制goroutine的规模简单的用一个channel就可以办到了。
+没必要为了这个搞一个pool。可能搞个pool主要还是为了造轮子。
+
+当然，也有可能还有我没有了解，或者不愿意了解的部分（对，就是morestack这个runtime的调用）。
 
 ### TODO
 
-- 空闲goroutine回收
-
 - 较详细的性能分析，在什么情况下用池性能会好一些？内存会少吃一些？（控制变量，多少goroutine，处理什么类型的任务）
-- 性能测试
